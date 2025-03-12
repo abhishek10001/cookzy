@@ -26,60 +26,6 @@ const AddCook = () => {
 
   const { backendUrl, aToken } = useContext(AdminContext);
 
-
-
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     if (!cookImg) {
-  //       return toast.error("Image Not Selected");
-  //     }
-  //     const formData = new FormData();
-  //     formData.append("image", cookImg);
-  //     //image name should be same as of in backend field name
-  //     formData.append("name", name);
-  //     formData.append("email", email);
-  //     formData.append("password", password);
-  //     formData.append(
-  //       "address",
-  //       JSON.stringify({ line1: address1, line2: address2 })
-  //     );
-  //     formData.append("experience", experience);
-  //     formData.append("fees", fees);
-  //     formData.append("speciality", speciality);
-  //     dishes.forEach((dish, index) => {
-  //       formData.append(`signatureDish[${index}]`, dish);
-  //     });
-  //     formData.append("about", about);
-
-  //     //console log form data
-
-  //     formData.forEach((value, key) => {
-  //       console.log(`${key}: ${value}`);
-  //     });
-
-  //     console.log("Full request URL:", `${backendUrl}/api/admin/add-cook`);
-
-  //     const { data } = await axios.post(
-  //       `${backendUrl}/api/admin/add-cook`,
-  //       formData,
-  //       { headers: { aToken } }
-  //     ); //aToken will convert into atoken as used in authAdmin middleware
-  //     console.log(data);
-
-  //     if (data.success) {
-  //       console.log(data.message);
-  //       toast.success(data.message);
-  //     } else {
-  //       console.log(data.message);
-  //       toast.error(data.message);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error submitting form:", error);
-  // toast.error(error.response?.data?.message || "Failed to add cook");
-  //   }
-  // };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -88,6 +34,7 @@ const AddCook = () => {
       }
       const formData = new FormData();
       formData.append("image", cookImg);
+      //image name should be same as of in backend field name
       formData.append("name", name);
       formData.append("email", email);
       formData.append("password", password);
@@ -98,32 +45,35 @@ const AddCook = () => {
       formData.append("experience", experience);
       formData.append("fees", fees);
       formData.append("speciality", speciality);
-      
-      // Convert dishes array to JSON string before appending
-      // Filter out empty dishes
-      const filteredDishes = dishes.filter(dish => dish.trim() !== "");
-      formData.append("signatureDish", JSON.stringify(filteredDishes));
-      
+      const signatureDishObj = {
+        dish1: dishes[0] || "",
+        dish2: dishes[1] || "",
+        dish3: dishes[2] || "",
+        dish4: dishes[3] || "",
+        dish5: dishes[4] || "",
+        dish6: dishes[5] || ""
+      };
+      formData.append("signatureDish", JSON.stringify(signatureDishObj));
       formData.append("about", about);
-  
+
+      //console log form data
+
+      formData.forEach((value, key) => {
+        console.log(`${key}: ${value}`);
+      });
+
       console.log("Full request URL:", `${backendUrl}/api/admin/add-cook`);
-  
+
       const { data } = await axios.post(
         `${backendUrl}/api/admin/add-cook`,
         formData,
-        { 
-          headers: { 
-            aToken,
-            'Content-Type': 'multipart/form-data' 
-          } 
-        }
-      );
-      
+        { headers: { aToken } }
+      ); //aToken will convert into atoken as used in authAdmin middleware
+      console.log(data);
+
       if (data.success) {
         console.log(data.message);
         toast.success(data.message);
-        
-        // Reset form after successful submission
         setName("");
         setEmail("");
         setPassword("");
@@ -135,13 +85,14 @@ const AddCook = () => {
         setDishes(["", "", "", "", "", ""]);
         setAbout("");
         setCookImg(false);
+        
       } else {
         console.log(data.message);
         toast.error(data.message);
       }
     } catch (error) {
       console.error("Error submitting form:", error);
-      toast.error(error.response?.data?.message || "Failed to add cook");
+  toast.error(error.response?.data?.message || "Failed to add cook");
     }
   };
 
@@ -160,7 +111,7 @@ const AddCook = () => {
           >
             <img
               src={cookImg ? URL.createObjectURL(cookImg) : assets.upload_area}
-              className="bg-gray-100 rounded-full  cursor-pointer"
+              className="bg-gray-100 rounded-full h-40 w-40  cursor-pointer"
               alt=""
             />
           </label>
@@ -353,15 +304,15 @@ const AddCook = () => {
               required
             >
               <option value="">Select cuisine speciality</option>
-              <option value="Italian">Italian Cuisine</option>
-              <option value="Chinese">Chinese Cuisine</option>
-              <option value="Indian">Indian Cuisine</option>
-              <option value="Mexican">Mexican Cuisine</option>
-              <option value="French">French Cuisine</option>
-              <option value="Japanese">Japanese Cuisine</option>
-              <option value="Mediterranean">Mediterranean Cuisine</option>
-              <option value="Thai">Thai Cuisine</option>
-              <option value="Pastry Chef">Pastry & Desserts</option>
+              <option value="Italian Cuisine">Italian Cuisine</option>
+              <option value="Chinese Cuisine">Chinese Cuisine</option>
+              <option value="Indian Cuisine">Indian Cuisine</option>
+              <option value="Mexican Cuisine">Mexican Cuisine</option>
+              <option value="French Cuisine">French Cuisine</option>
+              <option value="Japanese Cuisine">Japanese Cuisine</option>
+              <option value="Mediterranean Cuisine">Mediterranean Cuisine</option>
+              <option value="Thai Cuisine">Thai Cuisine</option>
+              <option value="Pastry & Deserts">Pastry & Desserts</option>
             </select>
           </div>
 
