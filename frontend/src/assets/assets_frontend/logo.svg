@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 100">
+  <!-- Background rounded rectangle -->
+  <rect x="10" y="15" width="280" height="70" rx="35" ry="35" fill="#FF6B35" />
+  
+  <!-- Chef hat -->
+  <path d="M55 35 C55 25, 65 20, 70 25 C75 15, 95 15, 100 25 C105 20, 115 25, 115 35 C115 50, 85 50, 85 50 L85 65 L55 65 Z" fill="white" />
+  
+  <!-- Chef face silhouette -->
+  <circle cx="70" cy="55" r="6" fill="#FF6B35" stroke="white" stroke-width="2" />
+  
+  <!-- Text "cookzy" -->
+  <text x="130" y="55" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="white">cookzy</text>
+  
+  <!-- Tagline -->
+  <text x="130" y="70" font-family="Arial, sans-serif" font-size="10" fill="white">book your chef online</text>
+  
+  <!-- Calendar icon representing booking -->
+  <rect x="245" y="35" width="30" height="30" rx="4" ry="4" fill="white" />
+  <rect x="250" y="35" width="5" height="5" fill="#FF6B35" />
+  <rect x="265" y="35" width="5" height="5" fill="#FF6B35" />
+  <rect x="250" y="45" width="5" height="5" fill="#FF6B35" />
+  <rect x="258" y="45" width="5" height="5" fill="#FF6B35" />
+  <rect x="265" y="45" width="5" height="5" fill="#FF6B35" />
+  <rect x="250" y="55" width="5" height="5" fill="#FF6B35" />
+  <rect x="258" y="55" width="5" height="5" fill="#FF6B35" />
+  <rect x="265" y="55" width="5" height="5" fill="#FF6B35" />
+  
+  <!-- Connection line representing online booking -->
+  <path d="M115 50 Q123 40 130 40" stroke="white" stroke-width="2" stroke-linecap="round" />
+</svg>
