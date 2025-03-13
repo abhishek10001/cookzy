@@ -80,6 +80,7 @@ const Cooks = () => {
   
   const { cooks } = useContext(AppContext);
   
+  
   // List of available cuisines
   const cuisines = [
     "All Cuisines",

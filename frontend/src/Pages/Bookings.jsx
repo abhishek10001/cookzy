@@ -2,7 +2,7 @@
 // Bookings.jsx
 import React, { useContext, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { AppContext } from "../context/AppContext";
+import { AppContext } from "../context/AppContext.jsx";
 import ChefHeader from "../components/ChefHeader";
 import MenuHighlights from "../components/MenuHighlights";
 import ReviewsSection from "../components/ReviewSection";
@@ -16,6 +16,8 @@ const Bookings = () => {
   const [cookInfo, setCookInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [relatedCooks, setRelatedCooks] = useState([]);
+
+  
 
   const fetchCookInfo = () => {
     setLoading(true);

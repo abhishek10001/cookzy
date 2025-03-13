@@ -123,17 +123,43 @@ const Navbar = () => {
 
       {/* Desktop Menu */}
       <ul className="hidden md:flex items-center gap-5 font-medium text-gray-700 absolute left-1/2 transform -translate-x-1/2">
-        {["Home", "All Cooks", "About", "Contact"].map((item, index) => (
-          <NavLink
-            key={index}
-            to={`/${item.toLowerCase().replace(" ", "")}`}
+      <NavLink
+            
+            to={'/'}
             className={({ isActive }) =>
               isActive ? "text-orange-600" : "hover:text-orange-500"
             }
           >
-            <li>{item}</li>
+            <li>Home</li>
           </NavLink>
-        ))}
+      <NavLink
+            
+            to={'/cooks'}
+            className={({ isActive }) =>
+              isActive ? "text-orange-600" : "hover:text-orange-500"
+            }
+          >
+            <li>All Cooks</li>
+          </NavLink>
+      <NavLink
+            
+            to={'/about'}
+            className={({ isActive }) =>
+              isActive ? "text-orange-600" : "hover:text-orange-500"
+            }
+          >
+            <li>About</li>
+          </NavLink>
+      <NavLink
+            
+            to={'/contact'}
+            className={({ isActive }) =>
+              isActive ? "text-orange-600" : "hover:text-orange-500"
+            }
+          >
+            <li>Contact</li>
+          </NavLink>
+        
       </ul>
 
       {/* User Section */}
