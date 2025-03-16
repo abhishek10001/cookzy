@@ -14,4 +14,14 @@ const changeAvailability = async (req, res, next) => {
     }
 }
 
-export {changeAvailability}
+const cookList = async (req, res)=>{
+    try {
+        const cooks = await cookModel.find({}).select(['-password','-email']);
+        res.json({ success: true, cooks});
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: error.message }); 
+    }
+}
+
+export {changeAvailability, cookList}
