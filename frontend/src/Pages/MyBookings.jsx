@@ -39,15 +39,43 @@
 
 
 
-"use client"
 
-import { useContext } from "react"
+
+import { useContext, useEffect, useState } from "react"
 import { AppContext } from "../context/AppContext"
-import { FaCalendarAlt, FaClock, FaMapMarkerAlt, FaTimes } from "react-icons/fa"
+import { FaCalendarAlt, FaClock, FaMapMarkerAlt, FaTimes } from "react-icons/fa";
+import axios from 'axios';
+
+import { toast } from'react-toastify';
 
 const MyBookings = () => {
-  const { cooks } = useContext(AppContext)
+  const { cooks, backendUrl , token  } = useContext(AppContext)
+  const [bookings , setBookings] =useState([]);
 
+
+const getUserBookings= async()=>{
+  try {
+   
+    const {data} =await axios.get(backendUrl+'/api/user/bookings',{headers:{token}});
+    console.log(data);
+    if (data.success) {
+      setBookings(data.bookings.reverse());
+      console.log(bookings.cookData);
+      
+    }
+  } catch (error) {
+    console.log("error mil gya")
+    console.log(error);
+    toast.error(error.message);
+  }
+}
+
+useEffect(()=>{
+  if (token) {
+    getUserBookings();
+  }
+  
+},[token])
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       <h1 className="text-3xl font-bold mb-6 text-gray-800">My Bookings</h1>
@@ -58,7 +86,8 @@ const MyBookings = () => {
         </div>
       ) : (
         <div className="space-y-6">
-          {cooks.slice(0, 2).map((item, index) => (
+          {bookings.map((item, index) => (
+            
             <div
               key={index}
               className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-shadow duration-300"
@@ -67,7 +96,7 @@ const MyBookings = () => {
                 {/* Cook Image */}
                 <div className="md:w-1/3 h-48 md:h-auto relative">
                   <img
-                    src={item.image || "/placeholder.svg?height=200&width=200"}
+                    src={item.cookData.image || "/placeholder.svg?height=200&width=200"}
                     alt={item.name}
                     className="w-80 h-80 object-cover"
                     onError={(e) => {
@@ -80,27 +109,27 @@ const MyBookings = () => {
                 <div className="p-6 md:w-2/3">
                   <div className="flex justify-between items-start">
                     <div>
-                      <h2 className="text-xl font-bold text-gray-800 mb-1">{item.name}</h2>
-                      <p className="text-gray-600 mb-4">{item.speciality}</p>
+                      <h2 className="text-xl font-bold text-gray-800 mb-1">{item.cookData.name}</h2>
+                      <p className="text-gray-600 mb-4">{item.cookData.speciality}</p>
 
                       <div className="space-y-2 mb-4">
                         <div className="flex items-start">
                           <FaMapMarkerAlt className="h-5 w-5 text-gray-500 mr-2 mt-0.5 flex-shrink-0" />
                           <div>
                             <p className="text-sm font-medium text-gray-700">Address:</p>
-                            <p className="text-sm text-gray-600">{item.address.line1}</p>
-                            <p className="text-sm text-gray-600">{item.address.line2}</p>
+                            <p className="text-sm text-gray-600">{item.cookData.address.line1}</p>
+                            <p className="text-sm text-gray-600">{item.cookData.address.line2}</p>
                           </div>
                         </div>
 
                         <div className="flex items-center">
                           <div className="flex items-center mr-4">
                             <FaCalendarAlt className="h-4 w-4 text-gray-500 mr-2" />
-                            <span className="text-sm text-gray-700">22 March, 2025</span>
+                            <span className="text-sm text-gray-700">{item.bookingDate}</span>
                           </div>
                           <div className="flex items-center">
                             <FaClock className="h-4 w-4 text-gray-500 mr-2" />
-                            <span className="text-sm text-gray-700">7:00 PM</span>
+                            <span className="text-sm text-gray-700">{item.bookingTime}</span>
                           </div>
                         </div>
                       </div>

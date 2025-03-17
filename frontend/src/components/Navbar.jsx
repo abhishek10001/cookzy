@@ -9,7 +9,7 @@ import { AppContext } from "../context/AppContext";
 const Navbar = () => {
   const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
-  const {token ,setToken}=useContext(AppContext);
+  const {token ,setToken,userData}=useContext(AppContext);
 
   const logout =()=>{
     setToken(false);
@@ -74,14 +74,14 @@ const Navbar = () => {
 
       {/* User Section */}
       <div className="flex items-center gap-4">
-        {token ? (
+        {token && userData ? (
           <div className="relative cursor-pointer group">
             <img
-              className="w-8 rounded-full"
-              src={assets.profile_pic}
+              className="w-8 h-8 rounded-full"
+              src={userData.image}
               alt="Profile"
             />
-            <img className="w-2.5" src={assets.dropdown_icon} alt="Dropdown" />
+            <img className="w-2.5 h-2.5" src={assets.dropdown_icon} alt="Dropdown" />
             <div className="absolute top-12 right-0 bg-white shadow-lg rounded-md py-2 hidden group-hover:block">
               <p
                 className="px-4 py-2 hover:bg-gray-100 cursor-pointer"

@@ -47,7 +47,7 @@ try {
 }
 
   const value = {
-    cooks,
+    cooks,getCooksData,
     currencySymbol,
     token,setToken,
     backendUrl,
