@@ -13,12 +13,13 @@ import Footer from "./components/Footer";
 import Cooks from "./Pages/Cooks";
 import {ToastContainer, toast} from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import ScrollToTop from "./components/ScrollToTop";
 function App() {
   return (
     <>
     <Navbar/>
-    <div className="mx-4 sm:mx-[10%]">
-    
+    <div className="mx-4 sm:mx-[10%] mt-28">
+    <ScrollToTop/>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/cooks" element={<Cooks />} />

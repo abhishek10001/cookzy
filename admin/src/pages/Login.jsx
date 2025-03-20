@@ -3,11 +3,13 @@ import { assets } from "../assets/assets_admin/assets.js";
 import axios from "axios";
 import { AdminContext } from "../context/AdminContext.jsx";
 import { toast } from "react-toastify";
+import { CookContext } from "../context/CookContext.jsx";
 
 const Login = () => {
 
   const [state, setState] = useState("Admin");
   const { setAToken, backendUrl } = useContext(AdminContext);
+  const{cToken , setCToken } = useContext(CookContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -23,6 +25,20 @@ const Login = () => {
         if (data.success) {
             localStorage.setItem('aToken', data.token);
             setAToken(data.token);
+            
+        }else{
+            toast.error(data.message);
+        }
+      }else{
+        const { data } = await axios.post(
+          backendUrl + "/api/cook/cook-login",
+          { email, password }
+        );
+        
+        if (data.success) {
+            localStorage.setItem('cToken', data.token);
+            setCToken(data.token);
+            console.log(data.token);
             
         }else{
             toast.error(data.message);

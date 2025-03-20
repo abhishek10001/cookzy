@@ -40,9 +40,9 @@ const Navbar = () => {
         <img src={assets.admin_logo} alt="Admin Logo" className="h-10 w-auto" />
         <div className="flex flex-col">
           <p className="font-bold text-lg text-gray-800">Admin Dashboard</p>
-          <div className="border border-primary w-14 text-center p-0.5 rounded-full">
+          <div className="border border-primary w-auto text-center py-1 rounded-full">
             <p className="text-sm text-primary mb-0.5">
-              {aToken ? "Admin" : "Cook Management"}
+              {aToken ? "Admin portal" : "Cook portal"}
             </p>
           </div>
         </div>

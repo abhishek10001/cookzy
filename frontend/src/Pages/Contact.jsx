@@ -41,7 +41,7 @@ const Contact = () => {
         className="py-20 px-4 bg-gradient-to-r from-[#FF5200] to-orange-500 text-white"
       >
         <div className="container mx-auto max-w-4xl">
-          <div className="bg-white/10 backdrop-blur-md rounded-3xl p-10 shadow-xl border border-white/20">
+          <div className=" backdrop-blur-md rounded-3xl p-10 shadow-xl border border-white/20">
             <h2 className="text-3xl md:text-4xl font-bold mb-6 text-center">Stay Inspired</h2>
             <p className="text-xl mb-10 text-white/90 max-w-2xl mx-auto text-center">
               Subscribe to our newsletter and get fresh recipes, cooking tips, and
@@ -71,7 +71,7 @@ const Contact = () => {
       </section>
       
       {/* FAQ Section */}
-      <section className="py-16 px-4 bg-gray-50">
+      <section className="py-16 px-4 ">
         <div className="container mx-auto max-w-4xl">
           <h2 className="text-3xl font-bold mb-12 text-center text-gray-800">Frequently Asked Questions</h2>
           
@@ -100,9 +100,9 @@ const Contact = () => {
       </section>
 
       {/* Feedback Component */}
-      <div className="bg-gray-100 py-12">
+      <div className=" py-12">
         <div className="container mx-auto max-w-6xl px-4">
-          <h2 className="text-3xl font-bold mb-8 text-center text-gray-800">Share Your Feedback</h2>
+         
           <Feedback />
         </div>
       </div>

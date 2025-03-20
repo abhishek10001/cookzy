@@ -22,11 +22,13 @@ const cookSchema = new mongoose.Schema(
     experience: { type: String, required: true },
     about: { type: String, required: true },
     available: { type: Boolean, default: true},
-
+phone:{type:String ,default:""},
     fees: { type: Number, required: true },
     address: { type: Object, required: true },
     date: { type: Date, required: true },
     slots_booked: { type: Object, default: {} },
+    gender:{ type: String},
+    dob:{type:Date}
   },
   { minimize: false }
 );

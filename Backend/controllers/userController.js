@@ -4,7 +4,8 @@ import userModel from "../models/userModel.js";
 import jwt from "jsonwebtoken";
 import { v2 as cloudinary } from "cloudinary";
 import cookModel from "../models/cookModel.js";
-import bookingModel from "../models/BookingModel.js";
+import bookingModel from "../models/bookingModel.js";
+import razorpay from "razorpay";
 const reigisterUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -103,77 +104,201 @@ const updateUserProfile = async (req, res) => {
 
 // logic to book a cook
 
+
 const bookCook = async (req, res) => {
   try {
     const { userId, cookId, bookingDate, bookingTime } = req.body;
+    
+    // Find cook data
     const cookData = await cookModel.findById(cookId).select("-password");
+    if (!cookData) {
+      return res.json({ success: false, message: "Cook not found" });
+    }
+    
     if (!cookData.available) {
       return res.json({ success: false, message: "Cook is not available" });
     }
 
     let slots_booked = cookData.slots_booked;
 
-    // check if the slot is already booked for the same date and time
-
-    if (slots_booked[bookingDate]) {
-      if (slots_booked[bookingDate].includes(bookingTime)) {
-        return res.json({ success: false, message: "slot not available" });
-      } else {
-        slots_booked[bookingDate].push(bookingTime);
-        cookModel.findByIdAndUpdate(cookId, { slots_booked }, (err, doc) => {
-          if (err) return res.json({ success: false, message: err.message });
-          res.json({ success: true, message: "Slot booked successfully" });
-        });
-      }
-    } else {
-      slots_booked[bookingDate] = [];
-      slots_booked[bookingDate].push(bookingTime);
+    // Check if the slot is already booked for the same date and time
+    if (slots_booked[bookingDate]?.includes(bookingTime)) {
+      return res.json({ success: false, message: "Slot not available" });
     }
+
+    // Initialize the array for the date if it doesn't exist
+    if (!slots_booked[bookingDate]) {
+      slots_booked[bookingDate] = [];
+    }
+
+    // Add the new booking time
+    slots_booked[bookingDate].push(bookingTime);
+
+    // Get user data
     const userData = await userModel.findById(userId).select("-password");
-    delete cookData.slots_booked;
+    if (!userData) {
+      return res.json({ success: false, message: "User not found" });
+    }
+
+    // Create a clean version of cookData without slots_booked
+    const cleanCookData = cookData.toObject();
+    delete cleanCookData.slots_booked;
+
+    // Create booking record
     const bookingData = {
       userId,
       cookId,
       userData,
-      cookData,
+      cookData: cleanCookData,
       amount: cookData.fees,
       bookingDate,
       bookingTime,
-      date: Date.now()
+      date: Date.now(),
     };
-    const newBooking = new bookingModel(bookingData);
-    await newBooking.save();
 
-    //saing in cooks data
-    await cookModel.findByIdAndUpdate(cookId, { slots_booked });
+    // Save booking and update cook's slots in parallel
+    const [newBooking] = await Promise.all([
+      new bookingModel(bookingData).save(),
+      cookModel.findByIdAndUpdate(cookId, { slots_booked }, { new: true })
+    ]);
+
+    if (!newBooking) {
+      throw new Error("Failed to create booking");
+    }
 
     res.json({ success: true, message: "Appointment Booked" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ 
+      success: false, 
+      message: error.message || "Failed to book appointment"
+    });
+  }
+};
+
+//api logic tp get my bookings
+
+const listBookings = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    const bookings = await bookingModel.find({ userId });
+    res.json({ success: true, bookings });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-//api logic tp get my bookings
-
-const listBookings =async (req, res) => {
+const cancelBookings = async (req, res) => {
   try {
-    const { userId } = req.body;
-    const bookings = await bookingModel.find({ userId })
-    res.json({ success: true, bookings });
-    
+    const { userId, bookingId } = req.body;
+    const bookingData = await bookingModel.findById(bookingId);
+    console.log(bookingData);
+    if (bookingData.userId !== userId) {
+      return res.json({ success: false, message: "Unauthorized" });
+    }
+    await bookingModel.findByIdAndUpdate(bookingId, { cancelled: true });
+
+    //releasing slots booked
+    const { cookId, bookingDate, bookingTime } = bookingData;
+    const cookData = await cookModel.findById(cookId);
+    let slots_booked = cookData.slots_booked;
+    slots_booked[bookingDate] = slots_booked[bookingDate].filter(
+      (e) => e !== bookingTime
+    );
+    await cookModel.findByIdAndUpdate(cookId, { slots_booked });
+    res.json({ success: true, message: "Booking cancelled successfully" });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: error.message });
   }
-}
+};
 
+//confirm booking
 
+const confirmBooking = async (req, res) => {
+  try {
+    const { bookingId } = req.body;
+    const bookingData = await bookingModel.findById(bookingId);
+
+    if (!bookingData || bookingData.cancelled) {
+      return res.json({
+        success: false,
+        message: "Booking not found or Cancelled",
+      });
+    }
+
+    // Simply return the current isconfirmed status rather than updating it
+    res.json({
+      success: true,
+      isConfirmed: bookingData.isconfirmed,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// making payments using razorpay
+const razorpayInstance = new razorpay({
+  key_id: process.env.RAZORPAY_TEST_KEY_ID,
+  key_secret: process.env.RAZORPAY_TEST_KEY_SECRET,
+});
+
+const makePayment = async (req, res) => {
+  try {
+    const { bookingId } = req.body;
+    const bookingData = await bookingModel.findById(bookingId);
+    console.log(bookingData);
+    if (!bookingData || bookingData.cancelled) {
+      return res.json({
+        success: false,
+        message: "Boking not found or Cancelled",
+      });
+    }
+    // creating options
+    const options = {
+      amount: bookingData.amount,
+      currency: "INR",
+      receipt: bookingId,
+    };
+    // creating order
+    const order = await razorpayInstance.orders.create(options);
+    res.json({ success: true, order });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const verifyRazorPay = async (req, res) => {
+  try {
+    const { razorpay_order_id } = req.body;
+    const orderInfo = await razorpayInstance.orders.fetch(razorpay_order_id);
+    console.log(orderInfo);
+    if (orderInfo.status === "paid") {
+      await bookingModel.findByIdAndUpdate(orderInfo.receipt, {
+        payment: true,
+      });
+      res.json({ success: true, message: "Payment successful" });
+    } else {
+      res.json({ success: false, message: "Payment failed" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
 
 export {
   reigisterUser,
   loginUser,
   getUserProfile,
   updateUserProfile,
-  bookCook,listBookings
+  bookCook,
+  listBookings,
+  cancelBookings,
+  confirmBooking,
+  makePayment,
+  verifyRazorPay,
 };
