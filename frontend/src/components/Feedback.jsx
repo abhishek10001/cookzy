@@ -2,9 +2,9 @@ import React, { useState } from 'react'
 import { FaEnvelope } from 'react-icons/fa'
 
 const Feedback = () => {
-    const [feedback, setFeedback] = React.useState('');
-    
-    const [contactEmail, setContactEmail] = useState("");
+    const [feedback, setFeedback] = useState('');
+    const [name, setName] = useState('');
+    const [contactEmail, setContactEmail] = useState('');
     
     const handleFeedbackSubmit = (e) => {
         e.preventDefault();
@@ -88,7 +88,7 @@ const Feedback = () => {
 
             <button
               type="submit"
-              className=" bg-[#FF5200] text-white px-6 py-4 rounded-full hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center gap-2 font-semibold"
+              className="bg-[#FF5200] text-white px-6 py-4 rounded-full hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center gap-2 font-semibold"
             >
               <FaEnvelope /> Send FeedBack
             </button>

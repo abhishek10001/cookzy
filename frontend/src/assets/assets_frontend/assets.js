@@ -38,6 +38,7 @@ import indian from './indian.jpg'
 // import Mediterranean from './Neurologist.svg'
 import pastry from './pastry.jpg'
 import korean from './korean.jpg'
+// import profile from './profile-photo.png'
 
 
 export const assets = {
@@ -58,6 +59,7 @@ export const assets = {
     upload_icon,
     stripe_logo,
     razorpay_logo
+    
 }
 
 export const specialityData = [

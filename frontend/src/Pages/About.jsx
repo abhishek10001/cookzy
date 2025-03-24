@@ -1,22 +1,36 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import {
-  FaBook,
+  FaUtensils,
   FaUsers,
-  FaRegSmileBeam,
+  FaRegCalendarCheck,
   FaPaperPlane,
   FaEnvelope,
   FaQuoteLeft,
   FaArrowRight,
   FaStar,
 } from "react-icons/fa";
-import Feedback from "../components/Feedback";
+
+import profile from '../assets/assets_frontend/profile-photo.png';
+import TeamSection from "../components/TeamSection";
+import { useNavigate } from "react-router-dom";
 
 const About = () => {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
-  
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const navigate = useNavigate();
+
+  const handlebookNow = async (e) => {
+    e.preventDefault();
+    navigate('/cooks')
+  }
+  
 
   // Handle scroll effect for navbar
   useEffect(() => {
@@ -27,17 +41,33 @@ const About = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Auto-rotate testimonials
+  // Fetch reviews from the backend
   useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveTestimonial((prev) => (prev + 1) % testimonials.length);
-    }, 5000);
-    return () => clearInterval(interval);
+    const fetchReviews = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get('http://localhost:4000/api/reviews/platform/reviews');
+        setReviews(response.data);
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching reviews:", err);
+        setError("Failed to load reviews");
+        setLoading(false);
+      }
+    };
+
+    fetchReviews();
   }, []);
 
-  
-
-  
+  // Auto-rotate testimonials
+  useEffect(() => {
+    if (reviews.length === 0) return;
+    
+    const interval = setInterval(() => {
+      setActiveTestimonial((prev) => (prev + 1) % reviews.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [reviews]);
 
   const scrollToSection = (id) => {
     const element = document.getElementById(id);
@@ -46,32 +76,30 @@ const About = () => {
     }
   };
 
-  const testimonials = [
+  // Fallback testimonials in case of error or empty reviews
+  const fallbackTestimonials = [
     {
       name: "Sarah Johnson",
-      role: "Home Chef",
-      quote:
-        "Cookzy transformed my cooking journey. The recipes are easy to follow and the results are always delicious!",
-      image:
-        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
+      role: "Home Cook Enthusiast",
+      quote: "ChefConnect made it so easy to book a personal chef for my anniversary dinner. The chef was amazing and the experience was unforgettable!",
+      image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
     },
     {
       name: "Michael Chen",
       role: "Food Blogger",
-      quote:
-        "As someone who writes about food for a living, I'm impressed by the quality and diversity of recipes on Cookzy.",
-      image:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
+      quote: "As someone who writes about culinary experiences, I'm impressed by the quality of chefs available on ChefConnect. Booking is seamless!",
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
     },
     {
       name: "Priya Patel",
-      role: "Culinary Student",
-      quote:
-        "The community aspect of Cookzy has helped me connect with other aspiring chefs and learn so much!",
-      image:
-        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
+      role: "Busy Professional",
+      quote: "ChefConnect has transformed my dinner parties. I can now focus on my guests while an expert chef handles the cooking!",
+      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
     },
   ];
+
+  // Use actual reviews or fallback if no reviews are available
+  const displayTestimonials = reviews.length > 0 ? reviews : fallbackTestimonials;
 
   return (
     <div className="bg-gray-50 text-gray-800 overflow-hidden">
@@ -80,18 +108,17 @@ const About = () => {
         <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[url('https://images.unsplash.com/photo-1495195134817-aeb325a55b65?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80')] bg-cover bg-center"></div>
         <div className="relative z-10 max-w-4xl mx-auto">
           <h1 className="text-5xl md:text-6xl font-bold mb-6 tracking-tight leading-tight">
-            Welcome to <span className="text-yellow-300">Cookzy</span>
+            Welcome to <span className="text-yellow-300">CookZy</span>
           </h1>
           <p className="text-xl max-w-2xl mx-auto leading-relaxed mb-10 text-white/90">
-            Your culinary companion for discovering, creating, and sharing
-            delicious recipes that bring joy to your kitchen.
+            Your personal connection to professional cooks. Book skilled culinary experts for private dining, cooking classes, and special events.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-white text-[#FF5200] px-8 py-3 rounded-full hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg font-semibold">
-              Explore Recipes
+            <button onClick={handlebookNow} className="bg-white text-[#FF5200] px-8 py-3 rounded-full hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg font-semibold">
+              Book a Cook
             </button>
             <button className="bg-transparent border-2 border-white text-white px-8 py-3 rounded-full hover:bg-white/10 transition-all duration-300 transform hover:scale-105 shadow-lg font-semibold">
-              Join Community
+              Explore Services
             </button>
           </div>
         </div>
@@ -102,19 +129,14 @@ const About = () => {
       <section id="mission" className="py-20 px-8 bg-white">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <span className="bg-orange-100 text-[#FF5200] px-4 py-1 rounded-full text-sm font-medium">
-              OUR PURPOSE
-            </span>
+            
             <h2 className="text-3xl md:text-4xl font-bold mt-4 mb-6 text-gray-800">
               Our Mission
             </h2>
             <div className="w-20 h-1 bg-[#FF5200] mx-auto mb-8 rounded-full"></div>
           </div>
           <p className="text-lg text-gray-600 leading-relaxed text-center mb-10">
-            At Cookzy, we believe cooking is an art of love and connection. Our
-            platform empowers food enthusiasts to explore, learn, and share
-            culinary experiences that transform ordinary meals into
-            extraordinary memories.
+            At CookConnect, we believe everyone deserves access to exceptional culinary experiences. Our platform connects talented cooks with food lovers, bringing restaurant-quality dining into your home or venue.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="bg-orange-50 p-8 rounded-2xl border border-orange-100">
@@ -122,9 +144,7 @@ const About = () => {
                 Our Vision
               </h3>
               <p className="text-gray-600">
-                To create a world where everyone can experience the joy of
-                cooking and sharing meals, regardless of skill level or
-                background.
+                To transform how people experience food by making personal cook services accessible, affordable, and extraordinary for every occasion.
               </p>
             </div>
             <div className="bg-orange-50 p-8 rounded-2xl border border-orange-100">
@@ -134,15 +154,15 @@ const About = () => {
               <ul className="text-gray-600 space-y-2">
                 <li className="flex items-center">
                   <span className="w-2 h-2 bg-[#FF5200] rounded-full mr-2"></span>{" "}
-                  Inclusivity in culinary exploration
+                  Culinary excellence and authenticity
                 </li>
                 <li className="flex items-center">
                   <span className="w-2 h-2 bg-[#FF5200] rounded-full mr-2"></span>{" "}
-                  Authenticity in recipes and stories
+                  Personalized dining experiences
                 </li>
                 <li className="flex items-center">
                   <span className="w-2 h-2 bg-[#FF5200] rounded-full mr-2"></span>{" "}
-                  Community-driven knowledge sharing
+                  Supporting culinary professionals
                 </li>
               </ul>
             </div>
@@ -158,31 +178,31 @@ const About = () => {
               WHAT WE OFFER
             </span>
             <h2 className="text-3xl md:text-4xl font-bold mt-4 mb-6 text-gray-800">
-              Discover Our Features
+              Discover Our Services
             </h2>
             <div className="w-20 h-1 bg-[#FF5200] mx-auto mb-8 rounded-full"></div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {
-                icon: <FaBook className="text-white text-3xl" />,
-                title: "Explore Recipes",
+                icon: <FaUtensils className="text-white text-3xl" />,
+                title: "Private Dining",
                 description:
-                  "Discover thousands of recipes from global cuisines, tailored to every skill level and dietary preference.",
+                  "Book professional chefs to create memorable dining experiences in the comfort of your own home for special occasions.",
                 color: "from-[#FF5200] to-orange-600",
               },
               {
                 icon: <FaUsers className="text-white text-3xl" />,
-                title: "Community Connection",
+                title: "Cooking Classes",
                 description:
-                  "Engage with passionate food lovers, share your culinary journey, and get inspired by diverse cooking styles.",
+                  "Learn culinary skills from expert chefs with personalized, hands-on cooking lessons for individuals or groups.",
                 color: "from-orange-500 to-amber-500",
               },
               {
-                icon: <FaRegSmileBeam className="text-white text-3xl" />,
-                title: "Culinary Creativity",
+                icon: <FaRegCalendarCheck className="text-white text-3xl" />,
+                title: "Event Catering",
                 description:
-                  "Transform cooking from a chore to a joyful, creative expression that brings people together.",
+                  "Hire talented chefs for your events, from intimate gatherings to large celebrations with customized menus.",
                 color: "from-amber-500 to-yellow-500",
               },
             ].map((feature, index) => (
@@ -211,13 +231,13 @@ const About = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 bg-gradient-to-r from-[#FF5200] to-orange-500 text-white">
+      {/* <section className="py-16 bg-gradient-to-r from-[#FF5200] to-orange-500 text-white">
         <div className="max-w-5xl mx-auto px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
             {[
-              { number: "10K+", label: "Recipes" },
-              { number: "500K+", label: "Community Members" },
-              { number: "50+", label: "Countries Represented" },
+              { number: "500+", label: "Expert Chefs" },
+              { number: "15K+", label: "Satisfied Clients" },
+              { number: "30+", label: "Cities Covered" },
             ].map((stat, index) => (
               <div key={index} className="p-6">
                 <h3 className="text-4xl md:text-5xl font-bold mb-2">
@@ -228,79 +248,10 @@ const About = () => {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Team Section */}
-      <section id="team" className="py-20 px-8 bg-white">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-16">
-            
-            <h2 className="text-3xl md:text-4xl font-bold mt-4 mb-6 text-gray-800">
-              Meet Our Team
-            </h2>
-            <div className="w-20 h-1 bg-[#FF5200] mx-auto mb-8 rounded-full"></div>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              A passionate team of chefs, food photographers, and tech
-              innovators dedicated to revolutionizing your cooking experience.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-10">
-            {[
-              {
-                name: "Sofia Rodriguez",
-                role: "Head Chef",
-                color: "bg-[#FF5200]",
-                image:
-                  "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
-                bio: "Award-winning chef with 15 years of experience in Mediterranean cuisine.",
-              },
-              {
-                name: "Marco Chen",
-                role: "Recipe Developer",
-                color: "bg-orange-500",
-                image:
-                  "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
-                bio: "Specializes in fusion recipes that blend Eastern and Western culinary traditions.",
-              },
-              {
-                name: "Elena Petrov",
-                role: "Culinary Photographer",
-                color: "bg-amber-500",
-                image:
-                  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&q=80",
-                bio: "Captures the art of food through her lens with a focus on natural lighting.",
-              },
-            ].map((member, index) => (
-              <div
-                key={index}
-                className="bg-white rounded-2xl shadow-xl overflow-hidden group hover:shadow-2xl transition-all duration-300"
-              >
-                <div className="h-64 overflow-hidden">
-                  <img
-                    src={member.image}
-                    alt={member.name}
-                    className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500"
-                  />
-                </div>
-                <div className="p-6 text-center">
-                  <h3 className="font-bold text-xl text-gray-800 mb-1">
-                    {member.name}
-                  </h3>
-                  <p className="text-[#FF5200] font-medium mb-3">
-                    {member.role}
-                  </p>
-                  <p className="text-gray-600 mb-4">{member.bio}</p>
-                  <div className="flex justify-center space-x-4">
-                    <button className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-[#FF5200] hover:text-white transition-colors">
-                      <FaEnvelope />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <TeamSection profile={profile}/>
 
       {/* Testimonials Section */}
       <section id="testimonials" className="py-20 px-8 bg-gray-50">
@@ -310,63 +261,78 @@ const About = () => {
               TESTIMONIALS
             </span>
             <h2 className="text-3xl md:text-4xl font-bold mt-4 mb-6 text-gray-800">
-              What Our Community Says
+              What Our Users Say
             </h2>
             <div className="w-20 h-1 bg-[#FF5200] mx-auto mb-8 rounded-full"></div>
           </div>
 
-          <div className="relative bg-white rounded-2xl shadow-xl p-8 md:p-12 overflow-hidden">
-            <FaQuoteLeft className="text-orange-100 text-8xl absolute top-4 left-4" />
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#FF5200] border-t-transparent"></div>
+            </div>
+          ) : error ? (
+            <div className="text-center text-red-500">{error}</div>
+          ) : (
+            <div className="relative bg-white rounded-2xl shadow-xl p-8 md:p-12 overflow-hidden">
+              <FaQuoteLeft className="text-orange-100 text-8xl absolute top-4 left-4" />
 
-            <div className="relative z-10">
-              <div className="flex flex-col md:flex-row items-center">
-                <div className="mb-6 md:mb-0 md:mr-10">
-                  <img
-                    src={testimonials[activeTestimonial].image}
-                    alt={testimonials[activeTestimonial].name}
-                    className="w-24 h-24 rounded-full object-cover border-4 border-orange-100"
-                  />
-                </div>
-                <div className="flex-1">
-                  <div className="flex mb-3">
-                    {[...Array(5)].map((_, i) => (
-                      <FaStar key={i} className="text-yellow-400 mr-1" />
-                    ))}
+              <div className="relative z-10">
+                <div className="flex flex-col md:flex-row items-center">
+                  <div className="mb-6 md:mb-0 md:mr-10">
+                    <div className="w-24 h-24 rounded-full bg-orange-100 flex items-center justify-center text-[#FF5200] text-2xl font-bold">
+                      {displayTestimonials[activeTestimonial]?.user?.name?.charAt(0) || "U"}
+                    </div>
                   </div>
-                  <p className="text-gray-600 text-lg italic mb-6">
-                    "{testimonials[activeTestimonial].quote}"
-                  </p>
-                  <h4 className="font-bold text-lg text-gray-800">
-                    {testimonials[activeTestimonial].name}
-                  </h4>
-                  <p className="text-[#FF5200]">
-                    {testimonials[activeTestimonial].role}
-                  </p>
+                  <div className="flex-1">
+                    <div className="flex mb-3">
+                      {[...Array(displayTestimonials[activeTestimonial]?.rating || 5)].map((_, i) => (
+                        <FaStar key={i} className="text-yellow-400 mr-1" />
+                      ))}
+                    </div>
+                    <p className="text-gray-600 text-lg italic mb-6">
+                      "{displayTestimonials[activeTestimonial]?.reviewText || displayTestimonials[activeTestimonial]?.quote}"
+                    </p>
+                    <h4 className="font-bold text-lg text-gray-800">
+                      {displayTestimonials[activeTestimonial]?.user?.name || displayTestimonials[activeTestimonial]?.name}
+                    </h4>
+                    <p className="text-[#FF5200]">
+                      {displayTestimonials[activeTestimonial]?.role || "Satisfied Client"}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="flex justify-center mt-8">
-              {testimonials.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setActiveTestimonial(index)}
-                  className={`w-3 h-3 rounded-full mx-1 ${
-                    activeTestimonial === index ? "bg-[#FF5200]" : "bg-gray-300"
-                  }`}
-                  aria-label={`View testimonial ${index + 1}`}
-                />
-              ))}
+              <div className="flex justify-center mt-8">
+                {displayTestimonials.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setActiveTestimonial(index)}
+                    className={`w-3 h-3 rounded-full mx-1 ${
+                      activeTestimonial === index ? "bg-[#FF5200]" : "bg-gray-300"
+                    }`}
+                    aria-label={`View testimonial ${index + 1}`}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </section>
 
-      {/* Newsletter Section */}
-      
-
-      {/* Feedback Section */}
-      
+      {/* Booking CTA Section */}
+      <section className="py-16 px-8 bg-white">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-800">
+            Ready to Book Your Cook?
+          </h2>
+          <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+            Whether it's a special occasion, a cooking lesson, or weekly meal prep, we have the perfect chef for your needs.
+          </p>
+          <button onClick={handlebookNow} className="bg-[#FF5200] text-white px-8 py-4 rounded-full hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 shadow-lg font-semibold text-lg">
+            Book a Cook Now
+          </button>
+        </div>
+      </section>
     </div>
   );
 };
