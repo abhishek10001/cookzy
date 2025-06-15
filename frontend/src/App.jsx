@@ -18,7 +18,7 @@ function App() {
   return (
     <>
     <Navbar/>
-    <div className="mx-4 sm:mx-[10%] mt-28">
+    <div className=" mt-28">
     <ScrollToTop/>
       <Routes>
         <Route path="/" element={<Home />} />

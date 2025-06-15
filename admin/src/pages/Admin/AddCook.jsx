@@ -99,7 +99,7 @@ const AddCook = () => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="m-5 w-full max-h-[80vh] overflow-y-auto"
+      className="m-5 w-full max-h-[80vh] overflow-y-auto flex justify-center "
     >
       {/* <h2 className="mb-5 text-2xl font-semibold text-gray-800 text-center">Add Cook</h2> */}
       <div className="bg-white px-8 py-8 border border-gray-200 rounded-lg shadow-sm w-full max-w-4xl">

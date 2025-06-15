@@ -3,6 +3,7 @@ import { AppContext } from "../context/AppContext";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import cookzybg from '../assets/assets_frontend/cookzy-bg.png';
 
 const Login = () => {
   const { backendUrl, token, setToken } = useContext(AppContext);
@@ -51,8 +52,9 @@ const Login = () => {
     }
   }, [token]);
   return (
-    <form onSubmit={onSubmitHandler} className="min-h-[80vh] flex items-center">
-      <div className="flex flex-col gap-3 m-auto item start p-8 min-w-[340px] sm:min-w-96 border border-primary rounded-lg">
+    <div className="w-full" style={{ backgroundImage: `url(${cookzybg})`, backgroundSize: "cover", backgroundPosition: "center" }}>
+       <form onSubmit={onSubmitHandler} className="min-h-[80vh] flex  " >
+      <div className="flex flex-col gap-3 m-auto item-start p-8 min-w-[340px] sm:min-w-96 border border-primary rounded-lg mr-32">
         <p className="text-3xl font-bold">
           {state === "Sign Up" ? "Create Account" : "Login"}
         </p>
@@ -119,6 +121,8 @@ const Login = () => {
         )}
       </div>
     </form>
+    </div>
+   
   );
 };
 

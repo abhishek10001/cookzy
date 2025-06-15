@@ -83,48 +83,59 @@ const Dashboard = () => {
 
         <div className="divide-y divide-gray-100">
           {dashData.latestBookings.length > 0 ? (
-            dashData.latestBookings.map((item, index) => (
-              <div
-                key={index}
-                className={`p-4 flex items-center justify-between hover:bg-gray-50 ${
-                  item.cancelled ? "bg-red-50" : ""
-                }`}
-              >
-                <div className="flex items-center">
-                  <img
-                    src={item.cookData.image}
-                    alt={item.cookData.name}
-                    className="w-12 h-12 rounded-full object-cover mr-4 border-2 border-gray-200"
-                  />
-                  <div>
-                    <p className="font-medium text-gray-800">
-                      {item.cookData.name}
-                    </p>
-                    <div className="flex items-center text-gray-500 text-sm mt-1">
-                      <FaRegCalendar className="mr-1 text-primary" />
-                      <p>{item.bookingDate}</p>
-                    </div>
-                    <div className="flex items-center text-gray-500 text-sm mt-1">
-                      <FaRegClock className="mr-1 text-primary" />
-                      <p>{item.bookingTime}</p>
+            dashData.latestBookings.map((item, index) => {
+              // Determine the status and corresponding color/text
+              let statusClass = "";
+              let statusText = "";
+
+              if (item.cancelled) {
+                statusClass = "bg-red-100 text-red-600";
+                statusText = "Cancelled";
+              } else if (item.isconfirmed && !item.isCompleted) {
+                statusClass = "bg-yellow-100 text-yellow-600";
+                statusText = "Confirmed";
+              } else if (item.isCompleted) {
+                statusClass = "bg-green-100 text-green-600";
+                statusText = "Completed";
+              } else {
+                statusClass = "bg-orange-100 text-orange-600";
+                statusText = "Pending";
+              }
+
+              return (
+                <div
+                  key={index}
+                  className={`p-4 flex items-center justify-between hover:bg-gray-50 ${
+                    item.cancelled ? "bg-red-50" : ""
+                  }`}
+                >
+                  <div className="flex items-center">
+                    <img
+                      src={item.cookData.image}
+                      alt={item.cookData.name}
+                      className="w-12 h-12 rounded-full object-cover mr-4 border-2 border-gray-200"
+                    />
+                    <div>
+                      <p className="font-medium text-gray-800">
+                        {item.cookData.name}
+                      </p>
+                      <div className="flex items-center text-gray-500 text-sm mt-1">
+                        <FaRegCalendar className="mr-1 text-primary" />
+                        <p>{item.bookingDate}</p>
+                      </div>
+                      <div className="flex items-center text-gray-500 text-sm mt-1">
+                        <FaRegClock className="mr-1 text-primary" />
+                        <p>{item.bookingTime}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {item.cancelled ? (
-                  <span className="px-3 py-1 bg-red-100 text-red-600 rounded-full text-sm font-medium">
-                    Cancelled
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${statusClass}`}>
+                    {statusText}
                   </span>
-                ) : (
-                  <img
-                  
-                    onClick={() => handleCancelBooking(item._id)}
-                    src={cancel_icon}
-                    alt="Cancel"
-                  />
-                )}
-              </div>
-            ))
+                </div>
+              );
+            })
           ) : (
             <div className="p-8 text-center text-gray-500">
               No bookings found

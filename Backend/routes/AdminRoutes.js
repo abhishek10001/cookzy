@@ -10,7 +10,7 @@ const adminRouter =express.Router();
 adminRouter.post('/add-cook',authAdmin, upload.single('image'),addCook);
 adminRouter.post('/login-admin', adminLogin);
 adminRouter.get('/all-cooks', authAdmin,allCooks);
-adminRouter.get('/change-availability', authAdmin,changeAvailability);
+adminRouter.post('/change-availability', authAdmin,changeAvailability);
 adminRouter.get('/bookings', authAdmin,bookingsAdmin);
 adminRouter.post('/cancel-booking-admin', authAdmin,cancelBookingsAdmin);
 adminRouter.get('/dashboard', authAdmin,adminDashboard);

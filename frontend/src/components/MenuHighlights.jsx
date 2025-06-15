@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { CiForkAndKnife } from "react-icons/ci";
 import { AppContext } from "../context/AppContext";
+import { motion } from "framer-motion";
 
 const MenuHighlights = () => {
   const { cooks } = useContext(AppContext);
@@ -26,27 +27,85 @@ const MenuHighlights = () => {
     }
   }, [cooks, cookId]);
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5
+      }
+    }
+  };
+
   return (
-    <div className="bg-white rounded-2xl shadow-md p-6 mb-8">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">Menu Highlights</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="bg-white rounded-2xl shadow-lg p-8 mb-8 hover:shadow-xl transition-all duration-300"
+    >
+      <motion.h2 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="text-2xl font-bold text-gray-800 mb-6 text-center relative"
+      >
+        Menu Highlights
+        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-20 h-1 bg-primary rounded-full"></div>
+      </motion.h2>
+
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="grid grid-cols-1 sm:grid-cols-2 gap-6"
+      >
         {menuItems.length > 0 ? (
           menuItems.slice(0, 6).map((item, index) => (
-            <div key={index} className="flex items-center p-3 border border-gray-100 rounded-xl">
-              <div className="bg-orange-100 w-16 h-16 rounded-lg flex items-center justify-center mr-4">
+            <motion.div
+              key={index}
+              variants={itemVariants}
+              whileHover={{ scale: 1.02, y: -5 }}
+              className="flex items-center p-4 border border-gray-100 rounded-xl bg-white hover:bg-gray-50 transition-all duration-300 shadow-sm hover:shadow-md"
+            >
+              <motion.div 
+                whileHover={{ rotate: 10 }}
+                className="bg-gradient-to-br from-orange-100 to-orange-50 w-16 h-16 rounded-lg flex items-center justify-center mr-4 shadow-sm"
+              >
                 <CiForkAndKnife className="text-primary h-8 w-8" />
-              </div>
+              </motion.div>
               <div>
-                <h3 className="font-medium text-gray-800">{item.name}</h3>
-                <p className="text-sm text-gray-500">Chef's specialty</p>
+                <h3 className="font-semibold text-gray-800 mb-1">{item.name}</h3>
+                <p className="text-sm text-gray-500 flex items-center">
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                  Chef's specialty
+                </p>
               </div>
-            </div>
+            </motion.div>
           ))
         ) : (
-          <p className="col-span-2 text-gray-500 text-center py-4">No signature dishes available</p>
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="col-span-2 text-gray-500 text-center py-8 bg-gray-50 rounded-xl"
+          >
+            <CiForkAndKnife className="h-12 w-12 mx-auto mb-3 text-gray-400" />
+            <p>No signature dishes available</p>
+          </motion.div>
         )}
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 

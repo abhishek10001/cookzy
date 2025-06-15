@@ -38,10 +38,13 @@ const AdminContextProvider = (props) => {
         { cookId },
         { headers: { aToken } }
       );
+      console.log(data);
       if (data.success) {
+        console.log(data);
         toast.success(data.message);
         getAllCooks();
       } else {
+        console.log(data);
         toast.error(data.message);
       }
     } catch (error) {

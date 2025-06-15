@@ -388,7 +388,7 @@ const ReviewsSection = ({ cookId }) => {
             </p>
             <button 
               onClick={() => setShowForm(true)}
-              className="mt-6 bg-primary hover:bg-primary/90 text-white font-medium py-3 px-6 rounded-lg transition-all flex items-center mx-auto shadow-md"
+              className="mt-6 bg-primary hover:bg-primary/90 text-white font-medium py-3 px-6 rounded-full transition-all flex items-center mx-auto shadow-md"
             >
               <FaStar className="mr-2" /> Write the First Review
             </button>

@@ -170,7 +170,7 @@ const Bookings = () => {
 
   return (
     cookInfo && (
-      <div className="mt-6">
+      <div className="mt-6 mx-32">
         <div className="flex flex-col sm:flex-row gap-4">
           <div>
             <img

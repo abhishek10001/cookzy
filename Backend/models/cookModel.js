@@ -28,7 +28,8 @@ phone:{type:String ,default:""},
     date: { type: Date, required: true },
     slots_booked: { type: Object, default: {} },
     gender:{ type: String},
-    dob:{type:Date}
+    dob:{type:Date},
+    fcmToken:{ type: String}
   },
   { minimize: false }
 );
