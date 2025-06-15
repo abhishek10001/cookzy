@@ -30,5 +30,10 @@
       "memory": 1024,
       "maxDuration": 10
     }
+  },
+  "build": {
+    "env": {
+      "NODE_ENV": "production"
+    }
   }
 }

@@ -4,8 +4,9 @@ import userModel from "../models/userModel.js";
 import jwt from "jsonwebtoken";
 import { v2 as cloudinary } from "cloudinary";
 import cookModel from "../models/cookModel.js";
-import bookingModel from "../models/bookingModel.js";  // ✅ FIXED: Using correct case
+import bookingModel from "../models/bookingModel.js";  // ✅ FIXED: Using absolute path from controllers directory
 import razorpay from "razorpay";
+
 
 const reigisterUser = async (req, res) => {
   try {
