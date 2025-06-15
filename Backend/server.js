@@ -19,6 +19,15 @@ connectCloudNiary();
 app.use(express.json());
 app.use(cors());
 
+// Add these at the top of your server.js file
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+});
+
+process.on('unhandledRejection', (err) => {
+  console.error('Unhandled Rejection:', err);
+});
+
 //api end points
 
 app.use('/api/admin', adminRouter);
@@ -33,6 +42,14 @@ app.get('/', (req, res) => {
     res.send('API WORKING');
 })
 
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-})
+// Modify your server.listen to handle serverless environment
+if (process.env.NODE_ENV === 'production') {
+  // For Vercel serverless
+  module.exports = app;
+} else {
+  // For local development
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+}
