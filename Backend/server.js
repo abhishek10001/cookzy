@@ -11,7 +11,7 @@ import contactrouter from './routes/contactRoutes.js';
 import reviewsRouter from './routes/reviewsRoutes.js';
 
 const app = express();
-const port = process.env.PORT || 4000
+const port = process.env.PORT || 4000;
 connectDB();
 connectCloudNiary();
 
@@ -29,27 +29,24 @@ process.on('unhandledRejection', (err) => {
 });
 
 //api end points
-
 app.use('/api/admin', adminRouter);
-app.use('/api/cook',cookRouter);
-app.use('/api/user',userRouter);
-app.use('/api/newsletter',newsletterrouter);
-app.use('/api/contact',contactrouter);
-app.use('/api/reviews',reviewsRouter);
-
+app.use('/api/cook', cookRouter);
+app.use('/api/user', userRouter);
+app.use('/api/newsletter', newsletterrouter);
+app.use('/api/contact', contactrouter);
+app.use('/api/reviews', reviewsRouter);
 
 app.get('/', (req, res) => {
     res.send('API WORKING');
-})
+});
 
-// Modify your server.listen to handle serverless environment
-if (process.env.NODE_ENV === 'production') {
-  // For Vercel serverless
-  module.exports = app;
-} else {
-  // For local development
+// Start server in development mode
+if (process.env.NODE_ENV !== 'production') {
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
   });
 }
+
+// Export for Vercel serverless
+export default app;
