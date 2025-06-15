@@ -1,7 +1,7 @@
 import cookModel from "../../Backend/models/cookModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import bookingModel from "../../Backend/models/bookingModel.js";
+import bookingModel from "../models/BookingModel.js";
 
 const changeAvailability = async (req, res, next) => {
   try {
