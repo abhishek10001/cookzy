@@ -1,18 +1,12 @@
 import React, { useContext, useEffect } from "react";
 import { AdminContext } from "../../context/AdminContext";
-import cancel_icon from "../../assets/assets_admin/cancel_icon.svg";
 import { CookContext } from "../../context/CookContext";
+import { motion, AnimatePresence } from "framer-motion";
+import { FaCalendarAlt, FaUser, FaClock, FaRupeeSign, FaSpinner } from "react-icons/fa";
 
 const Bookings = () => {
-  const { aToken, bookings, getAllBookings } =
-    useContext(AdminContext);
-  const {
-    completeBooking,
-    cancelBooking,
-    confirmBooking,
-
-    
-  } = useContext(CookContext);
+  const { aToken, bookings, getAllBookings } = useContext(AdminContext);
+  const { completeBooking, cancelBooking, confirmBooking } = useContext(CookContext);
 
   useEffect(() => {
     if (aToken) {
@@ -23,27 +17,27 @@ const Bookings = () => {
   const getBookingStatus = (booking) => {
     if (booking.cancelled) {
       return {
-        class: "text-red-600",
+        class: "bg-red-100 text-red-600",
         text: "Cancelled",
       };
     }
 
     if (booking.isCompleted) {
       return {
-        class: "text-green-600",
+        class: "bg-green-100 text-green-600",
         text: "Completed",
       };
     }
 
     if (booking.isconfirmed) {
       return {
-        class: "text-yellow-600",
+        class: "bg-yellow-100 text-yellow-600",
         text: "Confirmed",
       };
     }
 
     return {
-      class: "text-orange-600",
+      class: "bg-orange-100 text-orange-600",
       text: "Pending",
     };
   };
@@ -60,108 +54,126 @@ const Bookings = () => {
     }
   };
 
-  const renderActionButtons = (item) => {
-    // If booking is cancelled or completed, show N/A
-    if (item.cancelled || item.isCompleted) {
-      return <p className="text-gray-400">N/A</p>;
-    }
-
-    // If booking is confirmed, show Done button
-    if (item.isconfirmed) {
-      return (
-        <button
-        onClick={completeBooking(item._id)}
-          className="bg-green-500 text-white px-2 py-1 rounded text-xs"
-          disabled
-        >
-          Done
-        </button>
-      );
-    }
-
-    // If not cancelled and not confirmed, show Confirm and Cancel buttons
+  if (!bookings) {
     return (
-      <div className="flex gap-2">
-        <button
-          onClick={() => handleConfirmBooking(item._id)}
-          className="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600"
-        >
-          Confirm
-        </button>
-        <button
-          onClick={() => handleCancelBooking(item._id)}
-          className="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600"
-        >
-          Cancel
-        </button>
+      <div className="flex items-center justify-center h-screen">
+        <FaSpinner className="animate-spin text-4xl text-primary" />
       </div>
     );
-  };
+  }
 
   return (
-    <div className="w-full max-w-6xl m-5">
-      <p className="mv-3 text-lg font-medium">ALL BOOKINGS</p>
-      <div className="bg-white border border-gray-600 max-h-[80vh] min-h-[60vh] text-sm overflow-y-scroll">
-        <div className="hidden sm:grid grid-cols-[0.5fr_3fr_3fr_3fr_3fr_1fr_1fr] grid-flow-col py-3 px-6">
-          <p>S.No.</p>
-          <p>Client Name</p>
-          <p>Date & Time</p>
-          <p>Cook Name</p>
-          <p>Fee</p>
-          <p>Status</p>
-          {/* <p>Action</p> */}
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="w-full max-w-6xl m-5"
+    >
+      <motion.div
+        initial={{ y: -20 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="flex items-center gap-2 mb-4"
+      >
+        <FaCalendarAlt className="text-primary text-xl" />
+        <h1 className="text-xl font-semibold text-gray-800">All Bookings</h1>
+      </motion.div>
+
+      <motion.div 
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        className="bg-white rounded-lg shadow-md overflow-hidden"
+      >
+        <div className="hidden sm:grid grid-cols-[0.5fr_3fr_3fr_3fr_3fr_1fr] gap-4 py-4 px-6 bg-gray-50 border-b">
+          <p className="font-medium text-gray-600">S.No.</p>
+          <p className="font-medium text-gray-600">Client Name</p>
+          <p className="font-medium text-gray-600">Date & Time</p>
+          <p className="font-medium text-gray-600">Cook Name</p>
+          <p className="font-medium text-gray-600">Fee</p>
+          <p className="font-medium text-gray-600">Status</p>
         </div>
 
-        {bookings && bookings.length > 0 ? (
-          bookings.map((item, index) => {
-            const status = getBookingStatus(item);
+        <AnimatePresence>
+          {bookings && bookings.length > 0 ? (
+            bookings.map((item, index) => {
+              const status = getBookingStatus(item);
 
-            return (
-              <div
-                key={index}
-                className="flex flex-wrap max-sm:gap-2 sm:grid grid-cols-[0.5fr_3fr_3fr_3fr_3fr_1fr_1fr] py-3 px-6 border-t border-gray-300 item-center text-gray-500 hover:bg-orange-100"
-              >
-                <p>{index + 1}</p>
-                <div className="flex items-center gap-2">
-                  {item.userData && item.userData.image && (
-                    <img
-                      src={item.userData.image}
-                      alt="User"
-                      className="w-8 h-8 rounded-full"
+              return (
+                <motion.div
+                  key={item._id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.1 }}
+                  className="flex flex-wrap max-sm:gap-2 sm:grid grid-cols-[0.5fr_3fr_3fr_3fr_3fr_1fr] gap-4 py-4 px-6 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                >
+                  <p className="text-gray-600">{index + 1}</p>
+                  
+                  <div className="flex items-center gap-3">
+                    {item.userData && item.userData.image && (
+                      <motion.img
+                        whileHover={{ scale: 1.1 }}
+                        src={item.userData.image}
+                        alt="User"
+                        className="w-10 h-10 rounded-full object-cover border-2 border-gray-200"
+                      />
+                    )}
+                    <div>
+                      <p className="font-medium text-gray-800">{item.userData?.name || "N/A"}</p>
+                      <p className="text-sm text-gray-500">{item.userData?.email || ""}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <FaCalendarAlt className="text-primary" />
+                      <p>{item.bookingDate || "N/A"}</p>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <FaClock className="text-primary" />
+                      <p>{item.bookingTime || "N/A"}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <motion.img
+                      whileHover={{ scale: 1.1 }}
+                      src={item.cookData.image}
+                      alt={item.cookData.name}
+                      className="w-10 h-10 rounded-full object-cover border-2 border-gray-200"
                     />
-                  )}
-                  <p>{item.userData?.name || "N/A"}</p>
-                </div>
-                <p>
-                  {item.bookingDate || "N/A"} --- {item.bookingTime || "N/A"}
-                </p>
-                <p className="flex items-center gap-0.5">
-                  <img
-                    src={item.cookData.image}
-                    className="h-10 w-10 rounded-full mr-2"
-                    alt=""
-                  />
-                  {item.cookData?.name || "N/A"}{" "}
-                </p>
-                <p>Rs {item.amount || "N/A"}</p>
+                    <div>
+                      <p className="font-medium text-gray-800">{item.cookData?.name || "N/A"}</p>
+                      <p className="text-sm text-gray-500">{item.cookData?.speciality || ""}</p>
+                    </div>
+                  </div>
 
-                {/* Status Column */}
-                <p className={`text-sm font-medium ${status.class}`}>
-                  {status.text}
-                </p>
+                  <div className="flex items-center gap-2">
+                    <FaRupeeSign className="text-primary" />
+                    <p className="font-medium text-gray-800">{item.amount || "N/A"}</p>
+                  </div>
 
-                {/* Action Column */}
-                {/* <div className="flex items-center justify-center">
-                  {renderActionButtons(item)}
-                </div> */}
-              </div>
-            );
-          })
-        ) : (
-          <div className="py-4 text-center">No bookings found</div>
-        )}
-      </div>
-    </div>
+                  <motion.span 
+                    whileHover={{ scale: 1.05 }}
+                    className={`px-3 py-1 rounded-full text-sm font-medium ${status.class}`}
+                  >
+                    {status.text}
+                  </motion.span>
+                </motion.div>
+              );
+            })
+          ) : (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="py-8 text-center text-gray-500"
+            >
+              No bookings found
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </motion.div>
   );
 };
 

@@ -1,8 +1,9 @@
 import React, { useContext, useState } from "react";
-import { assets } from "../../assets/assets_admin/assets.js";
 import { AdminContext } from "../../context/AdminContext.jsx";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { motion } from "framer-motion";
+import { FaUser, FaEnvelope, FaLock, FaMapMarkerAlt, FaBriefcase, FaRupeeSign, FaUtensils, FaPlus, FaSpinner } from "react-icons/fa";
 
 const AddCook = () => {
   const [previewImage, setPreviewImage] = useState(null);
@@ -17,6 +18,9 @@ const AddCook = () => {
   const [speciality, setSpeciality] = useState("Indian Cuisine");
   const [dishes, setDishes] = useState(["", "", "", "", "", ""]);
   const [about, setAbout] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const { backendUrl, aToken } = useContext(AdminContext);
 
   const handledishChange = (index, value) => {
     const updatedDishes = [...dishes];
@@ -24,17 +28,16 @@ const AddCook = () => {
     setDishes(updatedDishes);
   };
 
-  const { backendUrl, aToken } = useContext(AdminContext);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       if (!cookImg) {
         return toast.error("Image Not Selected");
       }
+      setIsLoading(true);
+
       const formData = new FormData();
       formData.append("image", cookImg);
-      //image name should be same as of in backend field name
       formData.append("name", name);
       formData.append("email", email);
       formData.append("password", password);
@@ -56,24 +59,15 @@ const AddCook = () => {
       formData.append("signatureDish", JSON.stringify(signatureDishObj));
       formData.append("about", about);
 
-      //console log form data
-
-      formData.forEach((value, key) => {
-        console.log(`${key}: ${value}`);
-      });
-
-      console.log("Full request URL:", `${backendUrl}/api/admin/add-cook`);
-
       const { data } = await axios.post(
         `${backendUrl}/api/admin/add-cook`,
         formData,
         { headers: { aToken } }
-      ); //aToken will convert into atoken as used in authAdmin middleware
-      console.log(data);
+      );
 
       if (data.success) {
-        console.log(data.message);
         toast.success(data.message);
+        // Reset form
         setName("");
         setEmail("");
         setPassword("");
@@ -85,183 +79,210 @@ const AddCook = () => {
         setDishes(["", "", "", "", "", ""]);
         setAbout("");
         setCookImg(false);
-        
+        setPreviewImage(null);
       } else {
-        console.log(data.message);
         toast.error(data.message);
       }
     } catch (error) {
       console.error("Error submitting form:", error);
-  toast.error(error.response?.data?.message || "Failed to add cook");
+      toast.error(error.response?.data?.message || "Failed to add cook");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setCookImg(file);
+      setPreviewImage(URL.createObjectURL(file));
     }
   };
 
   return (
-    <form
+    <motion.form
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
       onSubmit={handleSubmit}
-      className="m-5 w-full max-h-[80vh] overflow-y-auto flex justify-center "
+      className="m-5 w-full max-h-[80vh] overflow-y-auto flex justify-center"
     >
-      {/* <h2 className="mb-5 text-2xl font-semibold text-gray-800 text-center">Add Cook</h2> */}
       <div className="bg-white px-8 py-8 border border-gray-200 rounded-lg shadow-sm w-full max-w-4xl">
         {/* Upload Image */}
-        <div className="mb-8 flex flex-col items-center">
+        <motion.div 
+          initial={{ y: -20 }}
+          animate={{ y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mb-8 flex flex-col items-center"
+        >
           <label
             htmlFor="cook-img"
-            className="cursor-pointer transition-all duration-300 hover:opacity-80"
+            className="cursor-pointer transition-all duration-300 hover:opacity-80 group"
           >
-            <img
-              src={cookImg ? URL.createObjectURL(cookImg) : assets.upload_area}
-              className="bg-gray-100 rounded-full h-40 w-40  cursor-pointer"
-              alt=""
-            />
+            <div className="relative">
+              <img
+                src={previewImage || "https://via.placeholder.com/150"}
+                className="bg-gray-100 rounded-full h-40 w-40 object-cover border-4 border-gray-200 group-hover:border-primary transition-colors"
+                alt="Cook preview"
+              />
+              <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                <FaPlus className="text-white text-2xl" />
+              </div>
+            </div>
           </label>
           <input
             type="file"
             id="cook-img"
             className="hidden"
-            onChange={(e) => setCookImg(e.target.files[0])}
+            onChange={handleImageChange}
             accept="image/*"
             required
           />
-
           <p className="mt-2 text-gray-600 text-sm">
             Upload cook's profile image
           </p>
-        </div>
+        </motion.div>
 
         {/* Cook Details */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div className="flex flex-col">
-            <label
-              htmlFor="cook-name"
-              className="text-gray-700 font-medium mb-1"
-            >
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="flex flex-col"
+          >
+            <label className="text-gray-700 font-medium mb-1 flex items-center gap-2">
+              <FaUser className="text-primary" />
               Cook Name
             </label>
             <input
               onChange={(e) => setName(e.target.value)}
               value={name}
               type="text"
-              id="cook-name"
-              placeholder="Abhishek"
-              className="px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all"
+              placeholder="Enter cook's name"
+              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
               required
             />
-          </div>
+          </motion.div>
 
-          <div className="flex flex-col">
-            <label
-              htmlFor="cook-email"
-              className="text-gray-700 font-medium mb-1"
-            >
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="flex flex-col"
+          >
+            <label className="text-gray-700 font-medium mb-1 flex items-center gap-2">
+              <FaEnvelope className="text-primary" />
               Cook Email
             </label>
             <input
               onChange={(e) => setEmail(e.target.value)}
               value={email}
               type="email"
-              id="cook-email"
-              placeholder="cook1@gmail.com"
-              className="px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all"
+              placeholder="Enter cook's email"
+              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
               required
             />
-          </div>
+          </motion.div>
 
-          <div className="flex flex-col">
-            <label
-              htmlFor="cook-password"
-              className="text-gray-700 font-medium mb-1"
-            >
-              Cook Password
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="flex flex-col"
+          >
+            <label className="text-gray-700 font-medium mb-1 flex items-center gap-2">
+              <FaLock className="text-primary" />
+              Password
             </label>
             <input
               onChange={(e) => setPassword(e.target.value)}
               value={password}
               type="password"
-              id="cook-password"
-              placeholder="password"
-              className="px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all"
+              placeholder="Enter password"
+              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
               required
             />
-          </div>
+          </motion.div>
         </div>
 
         {/* Address Fields */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div className="flex flex-col">
-            <label
-              htmlFor="address-line-1"
-              className="text-gray-700 font-medium mb-1"
-            >
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="flex flex-col"
+          >
+            <label className="text-gray-700 font-medium mb-1 flex items-center gap-2">
+              <FaMapMarkerAlt className="text-primary" />
               Address Line 1
             </label>
             <input
               onChange={(e) => setAddress1(e.target.value)}
               value={address1}
               type="text"
-              id="address-line-1"
-              placeholder="123 Main St"
-              className="px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all"
+              placeholder="Enter address line 1"
+              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
               required
             />
-          </div>
+          </motion.div>
 
-          <div className="flex flex-col">
-            <label
-              htmlFor="address-line-2"
-              className="text-gray-700 font-medium mb-1"
-            >
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            className="flex flex-col"
+          >
+            <label className="text-gray-700 font-medium mb-1 flex items-center gap-2">
+              <FaMapMarkerAlt className="text-primary" />
               Address Line 2
             </label>
             <input
               onChange={(e) => setAddress2(e.target.value)}
               value={address2}
               type="text"
-              id="address-line-2"
-              placeholder="Apt, Suite, etc."
-              className="px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all"
+              placeholder="Enter address line 2"
+              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
             />
-          </div>
+          </motion.div>
         </div>
 
         {/* Experience & Fees */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div className="flex flex-col">
-            <label
-              htmlFor="cook-experience"
-              className="text-gray-700 font-medium mb-1"
-            >
-              Cook Experience
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+            className="flex flex-col"
+          >
+            <label className="text-gray-700 font-medium mb-1 flex items-center gap-2">
+              <FaBriefcase className="text-primary" />
+              Experience
             </label>
             <select
               onChange={(e) => setExperience(e.target.value)}
               value={experience}
-              id="cook-experience"
-              className="px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all appearance-none bg-white cursor-pointer hover:border-orange-300"
-              style={{
-                backgroundImage:
-                  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23f97316'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E\")",
-                backgroundRepeat: "no-repeat",
-                backgroundPosition: "right 10px center",
-                backgroundSize: "20px",
-              }}
+              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all appearance-none bg-white cursor-pointer hover:border-primary"
               required
             >
-              <option value="">Select experience level</option>
               <option value="0-1 years">0-1 years (Beginner)</option>
               <option value="1-3 years">1-3 years (Junior)</option>
               <option value="3-5 years">3-5 years (Intermediate)</option>
               <option value="5-10 years">5-10 years (Senior)</option>
               <option value="10+ years">10+ years (Expert)</option>
             </select>
-          </div>
+          </motion.div>
 
-          <div className="flex flex-col">
-            <label
-              htmlFor="cook-fees"
-              className="text-gray-700 font-medium mb-1"
-            >
-              Cook Fees (₹/hr)
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.7 }}
+            className="flex flex-col"
+          >
+            <label className="text-gray-700 font-medium mb-1 flex items-center gap-2">
+              <FaRupeeSign className="text-primary" />
+              Fees (₹/hr)
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -271,39 +292,32 @@ const AddCook = () => {
                 onChange={(e) => setFees(e.target.value)}
                 value={fees}
                 type="number"
-                id="cook-fees"
-                placeholder="200"
-                className="pl-8 pr-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all w-full"
+                placeholder="Enter hourly rate"
+                className="pl-8 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all w-full"
                 required
               />
             </div>
-          </div>
+          </motion.div>
         </div>
 
         {/* Speciality & Signature Dishes */}
         <div className="mb-8">
-          <div className="flex flex-col mb-6">
-            <label
-              htmlFor="cook-speciality"
-              className="text-gray-700 font-medium mb-1"
-            >
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.8 }}
+            className="flex flex-col mb-6"
+          >
+            <label className="text-gray-700 font-medium mb-1 flex items-center gap-2">
+              <FaUtensils className="text-primary" />
               Speciality
             </label>
             <select
               onChange={(e) => setSpeciality(e.target.value)}
               value={speciality}
-              id="cook-speciality"
-              className="px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all appearance-none bg-white cursor-pointer hover:border-orange-300"
-              style={{
-                backgroundImage:
-                  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23f97316'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E\")",
-                backgroundRepeat: "no-repeat",
-                backgroundPosition: "right 10px center",
-                backgroundSize: "20px",
-              }}
+              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all appearance-none bg-white cursor-pointer hover:border-primary"
               required
             >
-              <option value="">Select cuisine speciality</option>
               <option value="Italian Cuisine">Italian Cuisine</option>
               <option value="Chinese Cuisine">Chinese Cuisine</option>
               <option value="Indian Cuisine">Indian Cuisine</option>
@@ -314,71 +328,85 @@ const AddCook = () => {
               <option value="Thai Cuisine">Thai Cuisine</option>
               <option value="Pastry & Deserts">Pastry & Desserts</option>
             </select>
-          </div>
+          </motion.div>
 
-          <div className="flex flex-col">
-            <label className="text-gray-700 font-medium mb-3">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.9 }}
+            className="flex flex-col"
+          >
+            <label className="text-gray-700 font-medium mb-3 flex items-center gap-2">
+              <FaUtensils className="text-primary" />
               Signature Dishes
             </label>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {[1, 2, 3, 4, 5, 6].map((num, index) => (
                 <input
+                  key={num}
                   value={dishes[index]}
                   onChange={(e) => handledishChange(index, e.target.value)}
-                  key={num}
                   type="text"
                   placeholder={`Dish ${num}`}
-                  className="px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all"
+                  className="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
                 />
               ))}
             </div>
-          </div>
+          </motion.div>
         </div>
 
         {/* About */}
-        <div className="mb-8">
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 1 }}
+          className="mb-8"
+        >
           <div className="flex flex-col">
-            <label
-              htmlFor="cook-about"
-              className="text-gray-700 font-medium mb-1"
-            >
+            <label className="text-gray-700 font-medium mb-1 flex items-center gap-2">
+              <FaUser className="text-primary" />
               About
             </label>
             <textarea
               onChange={(e) => setAbout(e.target.value)}
               value={about}
-              id="cook-about"
               placeholder="Tell us about the cook's background, cooking style, and specialties..."
               rows="4"
-              className="px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all"
+              className="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
               required
             ></textarea>
           </div>
-        </div>
+        </motion.div>
 
         {/* Submit Button */}
-        <div className="flex justify-end mt-6">
-          <button
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 1.1 }}
+          className="flex justify-end mt-6"
+        >
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             type="submit"
-            className="bg-primary hover:bg-orange-600 text-white font-medium py-2.5 px-6 rounded-full transition-colors duration-300 flex items-center"
+            disabled={isLoading}
+            className="bg-primary hover:bg-primary/90 text-white font-medium py-2.5 px-6 rounded-full transition-all duration-300 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 mr-2"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                clipRule="evenodd"
-              />
-            </svg>
-            Add Cook
-          </button>
-        </div>
+            {isLoading ? (
+              <>
+                <FaSpinner className="animate-spin" />
+                Adding Cook...
+              </>
+            ) : (
+              <>
+                <FaPlus />
+                Add Cook
+              </>
+            )}
+          </motion.button>
+        </motion.div>
       </div>
-    </form>
+    </motion.form>
   );
 };
 
