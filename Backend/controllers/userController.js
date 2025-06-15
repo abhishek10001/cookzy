@@ -1,5 +1,5 @@
 import validator from "validator";
-import bcrypt from "bcrypt";  // ✅ FIXED: Changed from "bycrypt" to "bcrypt"
+import bcrypt from "bcryptjs";  // ✅ CHANGED: Using bcryptjs instead of bcrypt
 import userModel from "../models/userModel.js";
 import jwt from "jsonwebtoken";
 import { v2 as cloudinary } from "cloudinary";
