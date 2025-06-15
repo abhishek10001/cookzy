@@ -208,7 +208,7 @@
 import cookModel from "../models/cookModel.js";  // CHANGED: Removed "../../Backend/"
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import bookingModel from "../models/bookingModel.js";
+import bookingModel from "../models/bookingModel.js";  // ✅ FIXED: Using correct case
 
 const changeAvailability = async (req, res, next) => {
   try {     
