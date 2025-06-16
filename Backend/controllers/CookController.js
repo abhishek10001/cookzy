@@ -1,5 +1,5 @@
 import cookModel from "../../Backend/models/cookModel.js";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import bookingModel from "../../Backend/models/bookingModel.js";
 

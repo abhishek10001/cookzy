@@ -1,7 +1,7 @@
 // API for adding cook
 import validator from "validator";
 
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { v2 as cloudinary } from "cloudinary";
 import cookModel from "../models/cookModel.js";
 import jwt from "jsonwebtoken";
