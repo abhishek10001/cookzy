@@ -1,10 +1,11 @@
 // API for adding cook
 import validator from "validator";
-import bcrypt from "bcryptjs";
+
+import bcrypt from "bcrypt";
 import { v2 as cloudinary } from "cloudinary";
 import cookModel from "../models/cookModel.js";
 import jwt from "jsonwebtoken";
-import bookingModel from "../models/bookingModel.js";
+import bookingModel from "../models/BookingModel.js";
 import userModel from "../models/userModel.js";
 const addCook = async (req, res) => {
   try {

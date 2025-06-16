@@ -1,11 +1,10 @@
-// ✅ FIXED IMPORTS - All using correct relative paths
-import cookModel from "../models/cookModel.js";
-import bcrypt from "bcryptjs";
+import cookModel from "../../Backend/models/cookModel.js";
+import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import bookingModel from "../models/bookingModel.js";  // ✅ FIXED: Using correct relative path
+import bookingModel from "../../Backend/models/bookingModel.js";
 
 const changeAvailability = async (req, res, next) => {
-  try {     
+  try {
     const { cookId } = req.body;
     const cookData = await cookModel.findById(cookId);
     await cookModel.findByIdAndUpdate(cookId, {
@@ -29,6 +28,7 @@ const cookList = async (req, res) => {
 };
 
 //cook login
+
 const cookLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -42,6 +42,7 @@ const cookLogin = async (req, res) => {
     }
     if (isMatch) {
       const token = jwt.sign({ id: cook._id }, process.env.JWT_SECRET);
+
       res.json({ success: true, token });
     } else {
       res.json({ success: false, message: "Invalid credentials" });
@@ -53,6 +54,7 @@ const cookLogin = async (req, res) => {
 };
 
 // api to get cook bookings for cook portal
+
 const cookBookings = async (req, res) => {
   try {
     const { cookId } = req.body;
@@ -64,57 +66,56 @@ const cookBookings = async (req, res) => {
   }
 };
 
-// api to mark booking completed IN COOK PANEL
+// api to mark booking coompleted  IN COOK PANEL
+
 const markBookingCompleted = async (req, res) => {
   try {
     const { cookId, bookingId } = req.body;
-    const bookingData = await bookingModel.findById(bookingId);
-    if (bookingData && bookingData.cookId === cookId) {
+    const bookindData = await bookingModel.findById(bookingId);
+    if (bookindData && bookindData.cookId === cookId) {
       await bookingModel.findByIdAndUpdate(bookingId, { isCompleted: true });
       res.json({
         success: true,
         message: "Booking marked completed successfully",
       });
     } else {
-      res.json({ success: false, message: "Access failed" });
+      res.json({ success: false, message: " access fAILED" });
     }
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
 const markBookingCancelled = async (req, res) => {
   try {
     const { cookId, bookingId } = req.body;
-    const bookingData = await bookingModel.findById(bookingId);
-    if (bookingData && bookingData.cookId === cookId) {
+    const bookindData = await bookingModel.findById(bookingId);
+    if (bookindData && bookindData.cookId === cookId) {
       await bookingModel.findByIdAndUpdate(bookingId, { cancelled: true });
       res.json({
         success: true,
-        message: "Booking cancelled",
+        message: "Booking cancelled ",
       });
     } else {
-      res.json({ success: false, message: "Cancellation failed" });
+      res.json({ success: false, message: " cancelleation failed" });
     }
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
 const markBookingConfirmed = async (req, res) => {
   try {
     const { cookId, bookingId } = req.body;
-    const bookingData = await bookingModel.findById(bookingId);
-    if (bookingData && bookingData.cookId === cookId) {
+    const bookindData = await bookingModel.findById(bookingId);
+    if (bookindData && bookindData.cookId === cookId) {
       await bookingModel.findByIdAndUpdate(bookingId, { isconfirmed: true });
       res.json({
         success: true,
-        message: "Booking confirmed",
+        message: "Booking Confirmed ",
       });
     } else {
-      res.json({ success: false, message: "Confirmation failed" });
+      res.json({ success: false, message: " Confirmation failed" });
     }
   } catch (error) {
     console.error(error);
@@ -148,7 +149,7 @@ const CookDashboard = async (req, res) => {
     const dashData = {
       earnings,
       bookings: bookings.length,
-      customers: customers.size,
+      customers: customers.length,
       latestBookings: bookings.slice(-5).reverse(), // Get the last 5 bookings in reverse order
     };
 
@@ -160,6 +161,8 @@ const CookDashboard = async (req, res) => {
 };
 
 // api for getting cook profile
+
+
 const getCookProfile = async (req, res) => {
   try {
     const { cookId } = req.body;
@@ -170,21 +173,14 @@ const getCookProfile = async (req, res) => {
     console.error(error);
     res.status(500).json({ success: false, message: error.message });
   }
-};
+}
 
 // api for updating cook profile
+
 const updateCookProfile = async (req, res) => {
   try {
-    const { cookId, fees, address, available, signatureDish, about, name, experience } = req.body;
-    await cookModel.findByIdAndUpdate(cookId, {
-      fees,
-      address,
-      available,
-      signatureDish,
-      about,
-      name,
-      experience
-    });
+    const { cookId, fees, address , available ,signatureDish , about,name,experience  } = req.body;
+    await cookModel.findByIdAndUpdate(cookId, {fees,address,available,signatureDish, about, name ,experience});
     res.json({ success: true, message: "Profile updated successfully" });
     
   } catch (error) {
